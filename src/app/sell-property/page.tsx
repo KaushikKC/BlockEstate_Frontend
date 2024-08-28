@@ -1,7 +1,8 @@
 "use client";
-import Navbar from "@/components/Navbar";
+
 import Link from "next/link";
 import React, { useState } from "react";
+import Navbar from "../../components/Navbar";
 
 function SellProperty() {
   const [propertyType, setPropertyType] = useState(""); // State to manage the selected property type

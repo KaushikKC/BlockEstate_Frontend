@@ -1,11 +1,16 @@
 "use client";
 import { useRouter, useSearchParams } from "next/navigation";
-import { properties } from "@/data/Properties";
-import React from "react";
-import Navbar from "@/components/Navbar";
+
+import React, { useState } from "react";
+
 import Image from "next/image";
 import Link from "next/link";
 import { FaArrowLeft } from "react-icons/fa";
+import img1 from "/public/assets/img1.jpg";
+import img2 from "/public/assets/img2.jpg";
+import { GrFormNext, GrFormPrevious } from "react-icons/gr";
+import Navbar from "../../../components/Navbar";
+import { properties } from "../../../data/Properties";
 
 const DetailsPage = ({
   id,
@@ -15,6 +20,17 @@ const DetailsPage = ({
   area,
   image,
 }: any) => {
+  const Gallery = [img1, img2, img1, img2, img1];
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  const prevClick = () => {
+    setCurrentIndex((currentIndex: number) => currentIndex - 1);
+  };
+
+  const nextClick = () => {
+    setCurrentIndex((currentIndex: number) => currentIndex + 1);
+  };
+
   const searchParams = useSearchParams();
 
   const details = searchParams.get("id");
@@ -50,21 +66,41 @@ const DetailsPage = ({
         </div>
       </div>
       <div className="mx-[70px]">
-        <div className="flex space-x-5">
-          <Image
-            src={property.images}
-            width={600}
-            height={500}
-            alt="gallery"
-            className="rounded-lg"
-          />
-          <Image
-            src="/assets/img2.jpg"
-            width={600}
-            height={500}
-            alt="gallery"
-            className="rounded-lg"
-          />
+        <div className="flex justify-center">
+          <div className="overflow-hidden relative w-[820px] ">
+            <div
+              className="flex space-x-5 "
+              style={{
+                transform: `translateX(-${currentIndex * (405 + 10)}px)`,
+                transition: "transform 0.5s ease",
+              }}
+            >
+              {Gallery.map((image, index) => (
+                <Image
+                  key={index}
+                  src={image}
+                  alt={`Image ${index}`}
+                  className="h-[300px] w-[400px] rounded-lg"
+                />
+              ))}
+            </div>
+            <div className="flex justify-center space-x-20 py-[20px]">
+              <button
+                className="rounded-[999px] flex justify-center items-center border-[2px] p-[8px]"
+                onClick={prevClick}
+                disabled={currentIndex === 0}
+              >
+                <GrFormPrevious className="h-[30px] w-[30px]" />
+              </button>
+              <button
+                className="rounded-[999px] flex justify-center items-center border-[2px] p-[8px]"
+                onClick={nextClick}
+                disabled={currentIndex === Gallery.length - 2}
+              >
+                <GrFormNext className="h-[30px] w-[30px]" />
+              </button>
+            </div>
+          </div>
         </div>
         <div className="flex justify-between items-center">
           <div className="my-[30px] space-y-1">
@@ -78,9 +114,15 @@ const DetailsPage = ({
               Total Tokens: {property.totalTokens}
             </p>
           </div>
-          <button className="text-[#11111C] mx-[40px] bg-[#96EA63] w-[250px] hover:bg-[#86d456] px-4 py-2 rounded-md text-sm font-medium">
+          <Link
+            href={{
+              pathname: `/buy-property/${details}`,
+              query: { id: JSON.stringify(parseInt(details as string)) }, // Passing event as query parameter
+            }}
+            className="text-[#11111C] mx-[40px] bg-[#96EA63] w-[250px] hover:bg-[#86d456] px-4 py-2 flex justify-center items-center rounded-md text-sm font-medium"
+          >
             Buy Property
-          </button>
+          </Link>
         </div>
       </div>
     </div>
