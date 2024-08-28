@@ -1,8 +1,7 @@
 "use client";
-
+import Navbar from "@/components/Navbar";
 import Link from "next/link";
 import React, { useState } from "react";
-import Navbar from "../../components/Navbar";
 
 function SellProperty() {
   const [propertyType, setPropertyType] = useState(""); // State to manage the selected property type
@@ -34,7 +33,8 @@ function SellProperty() {
               >
                 <option value="">Select Property Type</option>
                 <option value="Buy">Buy</option>
-                <option value="Rent">Rent</option>
+                <option value="Lease">Lease</option>
+                <option value="Both">Both</option>
               </select>
             </div>
             <div className="mb-4">
@@ -70,13 +70,41 @@ function SellProperty() {
                 className="block text-gray-400 text-sm font-bold mb-2"
                 htmlFor="tokens"
               >
-                Property Tokens
+                Property Tokens (Shares)
               </label>
               <input
                 className="w-full px-3 py-2 text-gray-300 bg-gray-900 rounded-md border border-gray-700 focus:outline-none focus:ring-2 focus:ring-[#96EA63]"
                 id="tokens"
                 type="number"
                 placeholder="Enter Tokens"
+              />
+            </div>
+            <div className="mb-4">
+              <label
+                className="block text-gray-400 text-sm font-bold mb-2"
+                htmlFor="token-price"
+              >
+                Token Price
+              </label>
+              <input
+                className="w-full px-3 py-2 text-gray-300 bg-gray-900 rounded-md border border-gray-700 focus:outline-none focus:ring-2 focus:ring-[#96EA63]"
+                id="token-price"
+                type="text"
+                placeholder="Enter Token Price"
+              />
+            </div>
+            <div className="mb-4">
+              <label
+                className="block text-gray-400 text-sm font-bold mb-2"
+                htmlFor="area"
+              >
+                Property Area (in sq ft)
+              </label>
+              <input
+                className="w-full px-3 py-2 text-gray-300 bg-gray-900 rounded-md border border-gray-700 focus:outline-none focus:ring-2 focus:ring-[#96EA63]"
+                id="area"
+                type="text"
+                placeholder="Area"
               />
             </div>
 
@@ -120,7 +148,7 @@ function SellProperty() {
                 className="bg-[#96EA63] text-black py-2 px-4 rounded-md font-medium hover:bg-[#86d456] focus:outline-none focus:ring-2 focus:ring-[#96EA63]"
                 type="submit"
               >
-                Sell Property
+                Submit
               </Link>
             </div>
           </form>
