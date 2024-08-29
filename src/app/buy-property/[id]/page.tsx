@@ -173,11 +173,12 @@
 // export default buyProperty;
 
 "use client";
-import Navbar from "@/components/Navbar";
-import { properties } from "@/data/Properties";
+
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import React, { useState, useEffect } from "react";
+import { properties } from "../../../data/Properties";
+import Navbar from "../../../components/Navbar";
 
 function BuyProperty() {
   const searchParams = useSearchParams();
@@ -191,6 +192,7 @@ function BuyProperty() {
     return <p>Property not found</p>;
   }
 
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const [tokensCount, setTokensCount] = useState(0);
   const [totalInvestment, setTotalInvestment] = useState(0);
 
