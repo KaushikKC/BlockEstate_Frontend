@@ -3,10 +3,37 @@ import React, { useState } from "react";
 import { Montserrat } from "next/font/google";
 import Image from "next/image";
 import Navbar from "../components/Navbar";
+import { Web3Auth } from "@web3auth/modal";
+import { CHAIN_NAMESPACES, WEB3AUTH_NETWORK } from "@web3auth/base";
+import { EthereumPrivateKeyProvider } from "@web3auth/ethereum-provider";
 
+const clientId =
+  "BNY58MKP_5LECFxClx-gwvMr-XPZKjLXtI6j1U8ZIRkeOpNcQtXXOGDv9t0ue-9ZkpdnrliuDhcmxPpdS3kWnbU";
 const montserrat = Montserrat({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700", "800"], // Specify the font weights you need
+});
+
+const chainConfig = {
+  chainNamespace: CHAIN_NAMESPACES.EIP155,
+  chainId: "0x1", // Please use 0x1 for Ethereum Mainnet
+  rpcTarget: "https://rpc.ankr.com/eth",
+  // Avoid using public rpcTarget in production.
+  // Use services like Infura, Quicknode etc
+  displayName: "Ethereum Mainnet",
+  blockExplorerUrl: "https://etherscan.io/",
+  ticker: "ETH",
+  tickerName: "Ethereum",
+};
+
+const privateKeyProvider = new EthereumPrivateKeyProvider({
+  config: { chainConfig },
+});
+
+const web3auth = new Web3Auth({
+  clientId,
+  web3AuthNetwork: WEB3AUTH_NETWORK.SAPPHIRE_DEVNET,
+  privateKeyProvider,
 });
 
 function Page() {

@@ -2,9 +2,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import React, { useState } from "react";
+import { useWallet } from "../context/WallectProvider";
 
 function Navbar() {
   const [isActive, setIsActive] = useState("");
+  const { walletAddress } = useWallet();
 
   const handleActiveState = (type: React.SetStateAction<string>) => {
     setIsActive(type);
@@ -58,7 +60,7 @@ function Navbar() {
               Sell Property
             </Link>
             <Link
-              href="/create-profile"
+              href="/connect-wallet"
               onClick={() => handleActiveState("Get Started")}
               className={`${
                 isActive === "Get Started"
@@ -68,6 +70,9 @@ function Navbar() {
             >
               Get Started
             </Link>
+            {walletAddress && (
+              <p className="text-gray-400">Wallet: {walletAddress}</p>
+            )}
           </div>
         </div>
       </div>
