@@ -15,7 +15,13 @@ function PropertyCard({
       <div className="absolute inset-0 bg-gradient-to-r from-[#96EA63] to-white rounded-lg p-[2px]"></div>
 
       <div className="relative bg-black w-full h-full p-6 rounded-lg">
-        <Link href={`/details-page/${id}`} className="relative">
+        <Link
+          href={{
+            pathname: `/details-page/${id}`,
+            query: { id: id }, // Passing event as query parameter
+          }}
+          className="relative"
+        >
           <Image
             src={image}
             alt={title}
@@ -32,7 +38,7 @@ function PropertyCard({
           <Link
             href={{
               pathname: `/details-page/${id}`,
-              query: { id: JSON.stringify(id) }, // Passing event as query parameter
+              query: { id: id }, // Passing event as query parameter
             }}
             className="bg-[#96EA63] text-black hover:bg-[#86d456] px-4 py-2 rounded-md text-sm font-medium"
           >

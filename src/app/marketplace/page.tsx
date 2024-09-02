@@ -1,16 +1,32 @@
 "use client";
 
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Navbar from "../../components/Navbar";
 import PropertyCard from "../../components/PropertyCard";
-import { properties } from "../../data/Properties";
+import axios from "axios";
+// import { properties } from "../../data/Properties";
 
 function MarketPlace() {
   const [checkActive, setCheckActive] = useState("");
+  const [properties, setProperties] = useState([]);
   const handleActive = (type: React.SetStateAction<string>) => {
     setCheckActive(type);
   };
+  useEffect(() => {
+    const fetchProperties = async () => {
+      try {
+        const data = await axios.get("http://localhost:3000/api/land/lands"); // Adjust the API route if necessary
+        console.log("market", data);
+        setProperties(data.data);
+      } catch (error) {
+        console.error("Error fetching properties:", error);
+      }
+    };
+
+    fetchProperties();
+  }, []);
+
   return (
     <div className="font-montserrat bg-[#11111C]">
       <Navbar />
@@ -51,10 +67,10 @@ function MarketPlace() {
         {properties.map((property) => (
           <PropertyCard
             key={property.id}
-            id={property.id}
-            title={property.title}
-            area={property.area}
-            totalTokens={property.totalTokens}
+            id={property.tokenId}
+            title={property.propertyName}
+            area={property.propertyArea}
+            totalTokens={property.propertyTokens}
             tokenPrice={property.tokenPrice}
             image={property.images}
           />

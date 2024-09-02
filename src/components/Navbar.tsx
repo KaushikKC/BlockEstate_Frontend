@@ -1,14 +1,36 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useWallet } from "../context/WallectProvider";
+import { coreKitInstance, evmProvider } from "../app/connect-wallet/page";
+import { makeEthereumSigner } from "@web3auth/mpc-core-kit";
+import Web3 from "web3";
 
 function Navbar() {
   const [isActive, setIsActive] = useState("");
+  const [balance, setBalance] = useState(null);
   const { walletAddress } = useWallet();
 
-  const handleActiveState = (type: React.SetStateAction<string>) => {
+  useEffect(() => {
+    const fetchBalance = async () => {
+      if (walletAddress) {
+        evmProvider.setupProvider(makeEthereumSigner(coreKitInstance));
+        const web3 = new Web3(evmProvider);
+        try {
+          const weiBalance = await web3.eth.getBalance(walletAddress); // Balance is in wei
+          const ethBalance = web3.utils.fromWei(weiBalance, "ether"); // Convert to ether
+          setBalance(ethBalance);
+        } catch (error) {
+          console.error("Error fetching balance:", error);
+        }
+      }
+    };
+
+    fetchBalance();
+  }, [walletAddress]); // Trigger effect whenever walletAddress changes
+
+  const handleActiveState = (type: string) => {
     setIsActive(type);
   };
 
@@ -39,15 +61,6 @@ function Navbar() {
             >
               Marketplace
             </Link>
-            {/* <Link
-              href="/buy-property"
-              onClick={() => handleActiveState("Buy Property")}
-              className={`${
-                isActive === "Buy Property" ? "text-[#96EA63]" : "text-gray-400"
-              } hover:text-[#96EA63] px-3 py-2 rounded-md text-md font-medium`}
-            >
-              Buy Property
-            </Link> */}
             <Link
               href="/sell-property"
               onClick={() => handleActiveState("Sell Property")}
@@ -71,7 +84,9 @@ function Navbar() {
               Get Started
             </Link>
             {walletAddress && (
-              <p className="text-gray-400">Wallet: {walletAddress}</p>
+              <p className="text-gray-400">
+                Wallet: {walletAddress} | Balance: {balance} ETH
+              </p>
             )}
           </div>
         </div>

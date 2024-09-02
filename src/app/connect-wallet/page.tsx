@@ -29,22 +29,25 @@ const verifier = "w3a-sfa-web-demo";
 
 const chainConfig = {
   chainNamespace: CHAIN_NAMESPACES.EIP155,
-  chainId: "0x128", // Please use 0x1 for Mainnet
+  chainId: "0x128",
   rpcTarget: "https://testnet.hashio.io/api",
   displayName: "Hedera Testnet",
-  blockExplorer: "https://hashscan.io/testnet/dashboard",
-  ticker: "ETH",
-  tickerName: "Ethereum",
+  blockExplorerUrl: "https://hashscan.io/testnet/",
+  ticker: "HBAR",
+  tickerName: "HBAR",
+  logo: "https://cryptologos.cc/logos/hedera-hbar-logo.png?v=033",
 };
 
-const coreKitInstance = new Web3AuthMPCCoreKit({
+export const coreKitInstance = new Web3AuthMPCCoreKit({
   web3AuthClientId,
   web3AuthNetwork: WEB3AUTH_NETWORK.SAPPHIRE_DEVNET,
   storage: window.localStorage,
   manualSync: true, // This is the recommended approach
   tssLib: tssLib,
 });
-const evmProvider = new EthereumSigningProvider({ config: { chainConfig } });
+export const evmProvider = new EthereumSigningProvider({
+  config: { chainConfig },
+});
 evmProvider.setupProvider(makeEthereumSigner(coreKitInstance));
 
 const firebaseConfig = {
