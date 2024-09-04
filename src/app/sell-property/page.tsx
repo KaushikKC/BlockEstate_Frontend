@@ -10,6 +10,18 @@ import Web3 from "web3";
 import { contractABI, contractAddress } from "../../data/config";
 import axios from "axios";
 
+interface PropertyPayload {
+  propertyName: string;
+  propertyAddress: string;
+  propertyTokens: string;
+  tokenPrice: string;
+  propertyType: string;
+  propertyArea: string;
+  ownerId: string;
+  tokenId: string;
+  leaseAmount?: string; // Optional field
+}
+
 function SellProperty() {
   const [propertyType, setPropertyType] = useState("");
   const [propertyName, setPropertyName] = useState("");
@@ -17,6 +29,7 @@ function SellProperty() {
   const [tokens, setTokens] = useState("");
   const [tokenPrice, setTokenPrice] = useState("");
   const [area, setArea] = useState("");
+  const [leaseamount, setLeaseAmount] = useState("");
   const [images, setImages] = useState([]); // Assuming you have a way to upload and set images
   const { walletAddress } = useWallet();
 
@@ -26,6 +39,7 @@ function SellProperty() {
   const handleTokensChange = (e) => setTokens(e.target.value);
   const handleTokenPriceChange = (e) => setTokenPrice(e.target.value);
   const handleAreaChange = (e) => setArea(e.target.value);
+  const handleLeaseChange = (e) => setLeaseAmount(e.target.value);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -34,48 +48,51 @@ function SellProperty() {
       evmProvider.setupProvider(makeEthereumSigner(coreKitInstance));
       const web3 = new Web3(evmProvider);
       const contract = new web3.eth.Contract(contractABI, contractAddress);
-      console.log(
-        propertyType,
-        propertyName,
-        propertyAddress,
-        area,
-        web3.utils.toWei(tokens, "ether"),
-        web3.utils.toWei(tokenPrice, "ether")
-      );
+
       const receipt = await contract.methods
         .sellProperty(
           propertyType,
           propertyName,
           propertyAddress,
           area,
-          web3.utils.toWei(tokens, "ether"),
-          web3.utils.toWei(tokenPrice, "ether"),
-          images // This should be an array of image URLs or IPFS hashes
+          tokens,
+          tokenPrice,
+          images // Array of image URLs or IPFS hashes
         )
         .send({ from: (await web3.eth.getAccounts())[0] });
 
       const tokenId = receipt.events.Transfer.returnValues.tokenId.toString();
 
-      // Create the payload for the backend
-      const payload = {
-        propertyName: propertyName,
-        propertyAddress: propertyAddress,
+      // Create payload for backend
+      const payload: PropertyPayload = {
+        propertyName,
+        propertyAddress,
         propertyTokens: tokens,
-        tokenPrice: tokenPrice,
-        propertyType: propertyType,
+        tokenPrice,
+        propertyType,
         propertyArea: area,
-        ownerId: walletAddress, // Assuming walletAddress is the owner's ID
-        tokenId: tokenId,
+        ownerId: walletAddress,
+        tokenId,
       };
 
-      // Send a POST request to the backend to store the property details
+      // If property is for lease or both, set it for lease
+      if (propertyType === "Lease" || propertyType === "Both") {
+        payload.leaseAmount = leaseamount;
+
+        // Set property for lease
+        await contract.methods
+          .setForLease(tokenId, leaseamount, 30) // 30 days as default lease duration
+          .send({ from: walletAddress });
+      }
+
+      // Save property to backend
       const response = await axios.post(
         "http://localhost:3000/api/land/sell",
         payload
       );
+
       if (response) {
         console.log("Property saved:", response);
-        // Redirect or show success message
       } else {
         console.error("Failed to save property:", response);
       }
@@ -174,6 +191,7 @@ function SellProperty() {
                 onChange={handleTokenPriceChange}
               />
             </div>
+
             <div className="mb-4">
               <label
                 className="block text-gray-400 text-sm font-bold mb-2"
@@ -191,7 +209,54 @@ function SellProperty() {
               />
             </div>
             {/* Add image upload handling here */}
+            <div className="mt-6 text-gray-400">
+              <label
+                className="block text-gray-400 text-sm font-bold mb-2"
+                htmlFor="images"
+              >
+                Upload Photos
+              </label>
+              <p className="mb-2">Take a photo of your document:</p>
+              <ul className="list-disc list-inside space-y-1">
+                <li>The document should be clear</li>
+                <li>All corners must be visible</li>
+              </ul>
 
+              <div className="grid grid-cols-1 gap-4 my-4">
+                <div className="border border-[#96EA63] p-4 rounded-md flex items-center justify-center">
+                  <button className="text-[#96EA63] flex flex-col items-center">
+                    <input
+                      type="file"
+                      accept=".pdf,.jpg,.jpeg,.png"
+                      className="mt-2 block w-full text-sm text-gray-500
+            file:mr-4 file:py-2 file:px-4
+            file:rounded-full file:border-0
+            file:text-sm file:font-semibold
+            file:bg-blue-50 file:text-[#212429]
+            hover:file:bg-gray-200"
+                    />
+                    <p className="mt-2">Upload Document</p>
+                  </button>
+                </div>
+              </div>
+            </div>
+            {(propertyType === "Lease" || propertyType === "Both") && (
+              <div className="mb-4">
+                <label
+                  className="block text-gray-400 text-sm font-bold mb-2"
+                  htmlFor="token-price"
+                >
+                  Lease Price
+                </label>
+                <input
+                  className="w-full px-3 py-2 text-gray-300 bg-gray-900 rounded-md border border-gray-700 focus:outline-none focus:ring-2 focus:ring-[#96EA63]"
+                  id="lease-price"
+                  type="number"
+                  placeholder="Enter Lease Price"
+                  onChange={handleLeaseChange}
+                />
+              </div>
+            )}
             <div className="flex justify-center">
               <button
                 className="bg-[#96EA63] text-black py-2 px-4 rounded-md font-medium hover:bg-[#86d456] focus:outline-none focus:ring-2 focus:ring-[#96EA63]"

@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 function IdentityVerificationForm() {
   const router = useRouter();
   const { walletAddress } = useWallet();
+  const [documentUrl, setDocumentUrl] = useState("");
   const [formData, setFormData] = useState({
     country: "",
     streetAddress: "",
@@ -28,6 +29,23 @@ function IdentityVerificationForm() {
     setFormData({ ...formData, documentFile: e.target.files[0] });
   };
 
+  const uploadDocument = async () => {
+    const formDatas = new FormData();
+    formDatas.append("file", formData.documentFile);
+    formDatas.append("upload_preset", "ml_default"); // Get this from Cloudinary
+    formDatas.append("cloud_name", "dv0frgqvj"); // Your Cloudinary cloud name
+
+    // Upload to Cloudinary
+    const response = await axios.post(
+      "https://api.cloudinary.com/v1_1/dv0frgqvj/image/upload",
+      formDatas
+    );
+
+    // Get the URL of the uploaded document
+    const documentUrl = response.data.secure_url;
+    setDocumentUrl(documentUrl);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -41,7 +59,7 @@ function IdentityVerificationForm() {
     const identityDocument = {
       issueCountry: formData.issueCountry,
       documentType: formData.documentType,
-      // documentFile: formData.documentFile,
+      documentUrl,
     };
 
     const data = {
@@ -224,7 +242,9 @@ function IdentityVerificationForm() {
                        file:bg-blue-50 file:text-[#212429]
                        hover:file:bg-gray-200"
                     />
-                    <p className="mt-2">Upload Document</p>
+                    <p onClick={() => uploadDocument} className="mt-2">
+                      Upload Document
+                    </p>
                   </button>
                 </div>
               </div>

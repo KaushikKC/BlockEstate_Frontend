@@ -24,8 +24,6 @@ const DetailsPage = ({
   const [currentIndex, setCurrentIndex] = useState(0);
   const searchParams = useSearchParams();
   const tokenId = searchParams.get("id");
-  console.log(tokenId);
-  console.log(parseInt(tokenId));
   const [property, setProperty] = useState(null);
   useEffect(() => {
     const fetchPropertyDetails = async () => {
