@@ -5,7 +5,6 @@ import { useSearchParams } from "next/navigation";
 import React, { useState, useEffect } from "react";
 import { properties } from "../../../data/Properties";
 import Navbar from "../../../components/Navbar";
-import { coreKitInstance, evmProvider } from "../../connect-wallet/page";
 import { makeEthereumSigner } from "@web3auth/mpc-core-kit";
 import Web3 from "web3";
 import { contractABI, contractAddress } from "../../../data/config";
@@ -15,6 +14,7 @@ import { useWallet } from "../../../context/WallectProvider";
 import { useRouter } from "next/navigation";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css"; // Import Toastify CSS
+import { coreKitInstance, evmProvider } from "../../../config/coreKitConfig";
 
 function BuyProperty() {
   const searchParams = useSearchParams();

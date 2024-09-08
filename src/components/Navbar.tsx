@@ -3,9 +3,9 @@ import Image from "next/image";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { useWallet } from "../context/WallectProvider";
-import { coreKitInstance, evmProvider } from "../app/connect-wallet/page";
 import { makeEthereumSigner } from "@web3auth/mpc-core-kit";
 import Web3 from "web3";
+import { coreKitInstance, evmProvider } from "../config/coreKitConfig";
 
 function Navbar() {
   const [isActive, setIsActive] = useState("");

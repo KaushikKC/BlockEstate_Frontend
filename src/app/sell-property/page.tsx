@@ -4,13 +4,13 @@ import Link from "next/link";
 import React, { useState } from "react";
 import Navbar from "../../components/Navbar";
 import { useWallet } from "../../context/WallectProvider";
-import { coreKitInstance, evmProvider } from "../connect-wallet/page";
 import { makeEthereumSigner } from "@web3auth/mpc-core-kit";
 import Web3 from "web3";
 import { contractABI, contractAddress } from "../../data/config";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { coreKitInstance, evmProvider } from "../../config/coreKitConfig";
 
 interface PropertyPayload {
   propertyName: string;
