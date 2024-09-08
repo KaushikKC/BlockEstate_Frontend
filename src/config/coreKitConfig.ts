@@ -1,4 +1,5 @@
 // coreKitConfig.ts
+"use client";
 import { Web3AuthMPCCoreKit, makeEthereumSigner } from "@web3auth/mpc-core-kit";
 import { EthereumSigningProvider } from "@web3auth/ethereum-mpc-provider";
 import { CHAIN_NAMESPACES, WEB3AUTH_NETWORK } from "@web3auth/base";

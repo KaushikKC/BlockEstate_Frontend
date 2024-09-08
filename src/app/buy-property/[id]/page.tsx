@@ -72,7 +72,7 @@ function BuyProperty() {
     const fetchPropertyDetails = async () => {
       try {
         const response = await fetch(
-          `http://localhost:3000/api/land/lands/${tokenId}`
+          `https://block-estate-backend.vercel.app/api/land/lands/${tokenId}`
         );
         const data = await response.json();
         setProperty(data);
@@ -118,11 +118,14 @@ function BuyProperty() {
           });
 
         toast.success("Property bought successfully!"); // Success toast
-        await axios.post("http://localhost:3000/api/land/buy", {
-          landId: property.tokenId,
-          buyerId: walletAddress, // replace with actual buyer ID
-          tokenCount: tokensCount,
-        });
+        await axios.post(
+          "https://block-estate-backend.vercel.app/api/land/buy",
+          {
+            landId: property.tokenId,
+            buyerId: walletAddress, // replace with actual buyer ID
+            tokenCount: tokensCount,
+          }
+        );
         router.push("/marketplace");
       } else if (propertyType === "Lease") {
         const collateralAmount = (totalInvestment * 0.5).toString();
@@ -149,11 +152,14 @@ function BuyProperty() {
           });
 
         toast.success("Property leased successfully!"); // Success toast
-        await axios.post("http://localhost:3000/api/land/lease", {
-          landId: property.tokenId,
-          tokenCount: tokensCount,
-          leaseDuration: leaseDurationInDays,
-        });
+        await axios.post(
+          "https://block-estate-backend.vercel.app/api/land/lease",
+          {
+            landId: property.tokenId,
+            tokenCount: tokensCount,
+            leaseDuration: leaseDurationInDays,
+          }
+        );
         router.push("/marketplace");
       }
     } catch (error) {

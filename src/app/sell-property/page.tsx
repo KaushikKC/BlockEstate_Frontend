@@ -140,7 +140,7 @@ function SellProperty() {
       }
 
       const response = await axios.post(
-        "http://localhost:3000/api/land/sell",
+        "https://block-estate-backend.vercel.app/api/land/sell",
         payload
       );
 
