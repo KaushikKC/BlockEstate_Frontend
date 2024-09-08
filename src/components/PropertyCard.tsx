@@ -10,6 +10,7 @@ function PropertyCard({
   area,
   image,
 }: any) {
+  console.log(image, "img");
   return (
     <div className="relative bg-black w-[450px] p-[2px] rounded-lg shadow-lg transform transition-all duration-300 hover:scale-105">
       <div className="absolute inset-0 bg-gradient-to-r from-[#96EA63] to-white rounded-lg p-[2px]"></div>
@@ -22,13 +23,23 @@ function PropertyCard({
           }}
           className="relative"
         >
-          <Image
-            src={image}
-            alt={title}
-            width={500}
-            height={300}
-            className="rounded-lg w-[500px] h-[300px]"
-          />
+          {image.length > 0 ? (
+            <Image
+              src={image[0]}
+              alt={title}
+              width={500}
+              height={300}
+              className="rounded-lg w-[500px] h-[300px]"
+            />
+          ) : (
+            <Image
+              src={image}
+              alt={title}
+              width={500}
+              height={300}
+              className="rounded-lg w-[500px] h-[300px]"
+            />
+          )}
         </Link>
 
         <div className="mt-4 flex justify-between items-center">

@@ -9,6 +9,8 @@ import { makeEthereumSigner } from "@web3auth/mpc-core-kit";
 import Web3 from "web3";
 import { contractABI, contractAddress } from "../../data/config";
 import axios from "axios";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 interface PropertyPayload {
   propertyName: string;
@@ -20,6 +22,8 @@ interface PropertyPayload {
   ownerId: string;
   tokenId: string;
   leaseAmount?: string; // Optional field
+  images: string[]; // Array of image URLs
+  documentUrl: string; // Single document URL
 }
 
 function SellProperty() {
@@ -29,9 +33,10 @@ function SellProperty() {
   const [tokens, setTokens] = useState("");
   const [tokenPrice, setTokenPrice] = useState("");
   const [area, setArea] = useState("");
-  const [leaseamount, setLeaseAmount] = useState("");
-  const [images, setImages] = useState([]); // Assuming you have a way to upload and set images
+  const [leaseAmount, setLeaseAmount] = useState("");
+  const [images, setImages] = useState<File[]>([]);
   const { walletAddress } = useWallet();
+  const [landDocument, setLandDocument] = useState<File | null>(null);
 
   const handlePropertyTypeChange = (e) => setPropertyType(e.target.value);
   const handlePropertyNameChange = (e) => setPropertyName(e.target.value);
@@ -40,11 +45,61 @@ function SellProperty() {
   const handleTokenPriceChange = (e) => setTokenPrice(e.target.value);
   const handleAreaChange = (e) => setArea(e.target.value);
   const handleLeaseChange = (e) => setLeaseAmount(e.target.value);
+  const handleImageChange = (e) => setImages(Array.from(e.target.files));
+  const handleLandDocumentChange = (e) => setLandDocument(e.target.files[0]);
+
+  const uploadImagesToCloudinary = async () => {
+    const uploadedImages = [];
+
+    toast.info("Uploading images...");
+    for (const image of images) {
+      const formData = new FormData();
+      formData.append("file", image);
+      formData.append("upload_preset", "ml_default");
+      formData.append("cloud_name", "dv0frgqvj");
+
+      try {
+        const response = await axios.post(
+          `https://api.cloudinary.com/v1_1/dv0frgqvj/image/upload`,
+          formData
+        );
+        uploadedImages.push(response.data.secure_url);
+      } catch (error) {
+        toast.error("Image upload failed!");
+        console.error("Image upload failed:", error);
+      }
+    }
+
+    let landDocumentUrl = null;
+    if (landDocument) {
+      toast.info("Uploading land document...");
+      const formData = new FormData();
+      formData.append("file", landDocument);
+      formData.append("upload_preset", "ml_default");
+      formData.append("cloud_name", "dv0frgqvj");
+
+      try {
+        const response = await axios.post(
+          `https://api.cloudinary.com/v1_1/dv0frgqvj/image/upload`,
+          formData
+        );
+        landDocumentUrl = response.data.secure_url;
+      } catch (error) {
+        toast.error("Land document upload failed!");
+        console.error("Land document upload failed:", error);
+      }
+    }
+
+    toast.success("Upload successful!");
+    return { uploadedImages, landDocumentUrl };
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
+      const { uploadedImages, landDocumentUrl } =
+        await uploadImagesToCloudinary();
       evmProvider.setupProvider(makeEthereumSigner(coreKitInstance));
       const web3 = new Web3(evmProvider);
       const contract = new web3.eth.Contract(contractABI, contractAddress);
@@ -57,13 +112,12 @@ function SellProperty() {
           area,
           tokens,
           tokenPrice,
-          images // Array of image URLs or IPFS hashes
+          uploadedImages
         )
         .send({ from: (await web3.eth.getAccounts())[0] });
 
       const tokenId = receipt.events.Transfer.returnValues.tokenId.toString();
 
-      // Create payload for backend
       const payload: PropertyPayload = {
         propertyName,
         propertyAddress,
@@ -73,36 +127,39 @@ function SellProperty() {
         propertyArea: area,
         ownerId: walletAddress,
         tokenId,
+        images: uploadedImages,
+        documentUrl: landDocumentUrl,
       };
 
-      // If property is for lease or both, set it for lease
       if (propertyType === "Lease" || propertyType === "Both") {
-        payload.leaseAmount = leaseamount;
+        payload.leaseAmount = leaseAmount;
 
-        // Set property for lease
         await contract.methods
-          .setForLease(tokenId, leaseamount, 30) // 30 days as default lease duration
+          .setForLease(tokenId, leaseAmount, 30)
           .send({ from: walletAddress });
       }
 
-      // Save property to backend
       const response = await axios.post(
         "http://localhost:3000/api/land/sell",
         payload
       );
 
-      if (response) {
+      if (response.status === 200) {
+        toast.success("Property saved successfully!");
         console.log("Property saved:", response);
       } else {
+        toast.error("Failed to save property!");
         console.error("Failed to save property:", response);
       }
     } catch (error) {
+      toast.error("Error selling property!");
       console.error("Error selling property:", error);
     }
   };
 
   return (
     <div className="font-montserrat bg-[#11111C]">
+      <ToastContainer />
       <Navbar />
       <div className="flex justify-center items-center min-h-screen">
         <div className="bg-gray-800 text-white p-10 rounded-lg shadow-md max-w-lg w-full">
@@ -222,22 +279,45 @@ function SellProperty() {
                 <li>All corners must be visible</li>
               </ul>
 
-              <div className="grid grid-cols-1 gap-4 my-4">
-                <div className="border border-[#96EA63] p-4 rounded-md flex items-center justify-center">
-                  <button className="text-[#96EA63] flex flex-col items-center">
-                    <input
-                      type="file"
-                      accept=".pdf,.jpg,.jpeg,.png"
-                      className="mt-2 block w-full text-sm text-gray-500
-            file:mr-4 file:py-2 file:px-4
-            file:rounded-full file:border-0
-            file:text-sm file:font-semibold
-            file:bg-blue-50 file:text-[#212429]
-            hover:file:bg-gray-200"
-                    />
-                    <p className="mt-2">Upload Document</p>
-                  </button>
-                </div>
+              <div className="mt-6 text-gray-400">
+                <label
+                  className="block text-gray-400 text-sm font-bold mb-2"
+                  htmlFor="images"
+                >
+                  Upload Property Images
+                </label>
+                <input
+                  type="file"
+                  accept=".jpg,.jpeg,.png"
+                  multiple
+                  onChange={handleImageChange}
+                  className="mt-2 block w-full text-sm text-gray-500
+      file:mr-4 file:py-2 file:px-4
+      file:rounded-full file:border-0
+      file:text-sm file:font-semibold
+      file:bg-blue-50 file:text-[#212429]
+      hover:file:bg-gray-200"
+                />
+              </div>
+
+              <div className="mt-6 text-gray-400">
+                <label
+                  className="block text-gray-400 text-sm font-bold mb-2"
+                  htmlFor="land-document"
+                >
+                  Upload Land Document (Proof of Ownership)
+                </label>
+                <input
+                  type="file"
+                  accept=".pdf,.jpg,.jpeg,.png"
+                  onChange={handleLandDocumentChange}
+                  className="mt-2 block w-full text-sm text-gray-500
+      file:mr-4 file:py-2 file:px-4
+      file:rounded-full file:border-0
+      file:text-sm file:font-semibold
+      file:bg-blue-50 file:text-[#212429]
+      hover:file:bg-gray-200"
+                />
               </div>
             </div>
             {(propertyType === "Lease" || propertyType === "Both") && (

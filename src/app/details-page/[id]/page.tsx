@@ -86,6 +86,26 @@ const DetailsPage = ({
                 transition: "transform 0.5s ease",
               }}
             >
+              {property.images.length > 0
+                ? property.images.map((image, index) => (
+                    <Image
+                      key={index}
+                      src={image}
+                      alt={`Image ${index}`}
+                      height={300}
+                      width={400}
+                      className="h-[300px] w-[400px] rounded-lg"
+                    />
+                  ))
+                : Gallery.map((image, index) => (
+                    <Image
+                      key={index}
+                      src={image}
+                      alt={`Gallery Image ${index}`}
+                      className="h-[300px] w-[400px] rounded-lg"
+                    />
+                  ))}
+
               {Gallery.map((image, index) => (
                 <Image
                   key={index}

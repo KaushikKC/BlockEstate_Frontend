@@ -13,11 +13,12 @@ import { ethers } from "ethers";
 import axios from "axios";
 import { useWallet } from "../../../context/WallectProvider";
 import { useRouter } from "next/navigation";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css"; // Import Toastify CSS
 
 function BuyProperty() {
   const searchParams = useSearchParams();
   const tokenId = searchParams.get("id");
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   const [tokensCount, setTokensCount] = useState(0);
   const [totalInvestment, setTotalInvestment] = useState(0);
   const [property, setProperty] = useState(null);
@@ -41,10 +42,7 @@ function BuyProperty() {
     const collateralAmount = totalInvestment * 0.5;
     setTokensCount(count);
     setTotalInvestment(count * formattedTokenPrice);
-    // console.log(totalInvestment.toString());
     const adjustedInvestment = totalInvestment.toString() + "0";
-    // console.log(ethers.parseUnits(adjustedInvestment, "gwei"));
-    // console.log(property.tokenId);
     console.log("Collateral", ethers.parseEther(collateralAmount.toString()));
   };
 
@@ -119,7 +117,7 @@ function BuyProperty() {
               .toString(),
           });
 
-        console.log("Property bought successfully");
+        toast.success("Property bought successfully!"); // Success toast
         await axios.post("http://localhost:3000/api/land/buy", {
           landId: property.tokenId,
           buyerId: walletAddress, // replace with actual buyer ID
@@ -137,7 +135,6 @@ function BuyProperty() {
         // Adjusted investment includes total lease amount + collateral
         adjustedInvestment =
           ethers.parseUnits(collateralAmount, "gwei") + totalLeaseAmount;
-        // Replace with form value for collateral
         adjustedInvestment = Number(adjustedInvestment.toString() + "0");
         const transaction = await contract.methods
           .leaseLandShares(
@@ -151,7 +148,7 @@ function BuyProperty() {
             value: adjustedInvestment.toString(),
           });
 
-        console.log("Property leased successfully");
+        toast.success("Property leased successfully!"); // Success toast
         await axios.post("http://localhost:3000/api/land/lease", {
           landId: property.tokenId,
           tokenCount: tokensCount,
@@ -160,6 +157,7 @@ function BuyProperty() {
         router.push("/marketplace");
       }
     } catch (error) {
+      toast.error("Error processing transaction!"); // Error toast
       console.error("Error processing transaction:", error);
     }
   };
