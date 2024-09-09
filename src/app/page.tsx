@@ -16,10 +16,8 @@ const montserrat = Montserrat({
 
 const chainConfig = {
   chainNamespace: CHAIN_NAMESPACES.EIP155,
-  chainId: "0x1", // Please use 0x1 for Ethereum Mainnet
+  chainId: "0x1",
   rpcTarget: "https://rpc.ankr.com/eth",
-  // Avoid using public rpcTarget in production.
-  // Use services like Infura, Quicknode etc
   displayName: "Ethereum Mainnet",
   blockExplorerUrl: "https://etherscan.io/",
   ticker: "ETH",

@@ -16,9 +16,7 @@ function MarketPlace() {
   useEffect(() => {
     const fetchProperties = async () => {
       try {
-        const data = await axios.get(
-          "https://block-estate-backend.vercel.app/api/land/lands"
-        ); // Adjust the API route if necessary
+        const data = await axios.get("http://localhost:3000/api/land/lands"); // Adjust the API route if necessary
         console.log("market", data);
         setProperties(data.data);
       } catch (error) {
